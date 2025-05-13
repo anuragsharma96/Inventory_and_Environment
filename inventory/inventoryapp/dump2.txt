@@ -1,0 +1,56 @@
+views.py:
+from django.utils import timezone
+from django.http import JsonResponse
+from .models import Request, Equipment
+
+@login_required
+def issue_equipment(request):
+    if request.method == "POST":
+        try:
+            equipment = Equipment.objects.get(id=request.POST.get("equipment_id"))
+
+            req = Request.objects.create(
+                Admin=request.user,
+                Issued_By=request.POST.get("issued_by"),
+                Username=request.POST.get("username"),
+                Post=request.POST.get("post"),
+                UserEmail=request.POST.get("user_email"),
+                Equipment=equipment,
+                Tool_Name=equipment.Tool_Name,
+                Type=equipment.Type,
+                Section=equipment.Section,
+                Condition_Issued=request.POST.get("condition_issued"),
+                Returned_To=""  # to be filled later
+            )
+
+            return JsonResponse({'success': True, 'request_id': req.id})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': "Invalid request method"})
+
+@login_required
+def return_equipment(request):
+    if request.method == "POST":
+        try:
+            req = Request.objects.get(id=request.POST.get("request_id"), Is_Returned=False)
+            req.Returned_To = request.POST.get("returned_to")
+            req.Condition_Returned = request.POST.get("condition_returned")
+            req.Return_Date = timezone.now()
+            req.Is_Returned = True
+            req.save()
+            return JsonResponse({'success': True})
+        except Request.DoesNotExist:
+            return JsonResponse({'success': False, 'error': "Request not found or already returned."})
+    return JsonResponse({'success': False, 'error': "Invalid request method"})
+
+urls.py:
+from .views import issue_equipment, return_equipment
+
+urlpatterns = [
+    path('issue_equipment/', issue_equipment, name='issue_equipment'),
+    path('return_equipment/', return_equipment, name='return_equipment'),
+]
+request_page:
+def request_page(request):
+    equipment_list = Equipment.objects.all()
+    return render(request, 'request.html', {'equipment_list': equipment_list})

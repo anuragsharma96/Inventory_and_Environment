@@ -1,0 +1,7 @@
+<!Doctype Html>
+<html lang="en">
+<head>
+<meta charset="Utf-8">
+<meta name="viewport" content="width:device-width, initil-scale:1.0">
+</head>
+<body>

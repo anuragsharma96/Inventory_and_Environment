@@ -1,0 +1,29 @@
+ document.querySelectorAll("select").forEach((select, ind) => {
+     console.log("select running");
+     select.addEventListener("change", (event) => {
+         if (sectionSelect.value == "Create New Section" || sectionSelect.value == "New – New Section" ) {
+             console.log(sectionSelect.value);
+             let catlab = document.createElement("label");
+             catlab.id="catlab" + ind;
+             catlab.name="catlab" + ind;
+             catlab.textContent = "Lab Category";
+             let b = document.getElementById("add-equipment");
+             b.insertAdjacentElement("beforebegin", catlab);
+             let catInp = document.createElement("input");
+             catInp.setAttribute("id", "catinp" + ind);
+             catInp.setAttribute("name", "catinp" + ind);
+             catInp.value = nameInput.value.trim();
+             catlab.insertAdjacentElement('afterend', catInp);
+             let valLab = document.createElement("label");
+             valLab.textContent = "Section";
+             catInp.insertAdjacentElement('afterend', valLab);
+             let valInp = document.createElement("input");
+             valInp.setAttribute("id", "newsection" + ind);
+             valInp.setAttribute("name", "catinp" + ind);
+             valInp.value = "";
+             valLab.insertAdjacentElement('afterend', valInp);
+             ind++;
+             console.log("if running");
+         }
+     });
+ });

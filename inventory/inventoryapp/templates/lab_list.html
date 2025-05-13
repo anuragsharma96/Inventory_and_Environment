@@ -1,0 +1,63 @@
+<!Doctype Html>
+<html lang="en">
+<head>
+<meta charset="Utf-8">
+<meta name="viewport" content="width:device-width, initil-scale:1.0">
+<style>
+thead,tbody,td,tr
+{
+border: solid 6px brown;}
+</style>
+</head>
+<body>
+
+<table border=1>
+ <caption>Labs</caption>
+        <thead>
+            <tr>
+		<th>Lab Name</th>
+                <th>Equipment</th>
+                <th>Type</th>
+		<th>Section</th>
+<th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in labs %}
+            <tr>
+                <td>{{ item.Name }}</td>
+                <td>
+{{ item.Tool_Name}}
+
+</td>
+<td>
+    {{ item.Type }}
+</td>
+<td>
+{{ item.Section }}
+</td>
+<td>
+{{ item.Quantity }}
+</td>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% if request.user.is_superuser %}
+    <h2>Superadmin Dashboard</h2>
+    <ul>
+        <li><a href="{% url 'inventory_list' %}">View Inventory</a></li>
+	<li><a href="{% url 'create_admin' %}"> Create Admin</a></li>
+        <li><a href="{% url 'admin_list' %}">Manage Admins</a></li>
+        <li><a href="{% url 'add_equipment' %}">Add Equipment</a></li>
+	<li><a href ="{% url 'add_lab' %}">Add Lab</a></li>
+    </ul>
+{% else %}
+<ul>
+	<li><a href="{% url 'inventory_list' %}">View Inventory</a></li>
+
+	<li><a href="{% url 'add_equipment' %}">Add Equipment</a></li>
+</ul>
+{% endif %}
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!Doctype Html>
+<html lang="en">
+<head>
+<meta charset="Utf-8">
+<meta name="viewport" content="width:device-width, initil-scale:1.0">
+
+</head>
+<body>
+{% if request.user.is_superuser or request.user.role in "SuperUser superuser Reinstated" %}
+<form method="Post"> <caption>Add Admin</caption>
+	{% csrf_token %}
+        {{ form.as_p }}
+<button type="Submit">Add Admin</button>
+</form>
+{% else %}
+<meta http-equiv="refresh" content="width:device-width, url=url{% url 'inventory_list' %}">
+{% endif %}
+<nav><a href="{% url 'inventory_list' %}">Back to Inventory</a>
+<a href="{% url 'lab_list' %}">Back to Lab List</a>
+<a href="{% url 'admin_list' %}">Manage Admin</a>
+<a fref="{% url 'home' %}">Back to Home</a></nav>
+</body>
+</html>

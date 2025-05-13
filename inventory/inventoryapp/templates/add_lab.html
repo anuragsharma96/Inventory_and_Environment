@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Lab</title>
+</head>
+<body>
+    <h2>Add Lab</h2>
+    <form id="lab-form" method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div id="equipment-container"></div>
+
+        <button type="button" id="add-equipment" onclick="getmore()">Add More Equipment</button><br>
+        <button type="submit">Save Lab</button>
+
+    </form>
+
+    <a href="{% url 'inventory_list' %}">Back to Inventory</a>
+
+    {% if request.user.is_superuser or request.user.role in "SuperUser superuser Reinstated 'Reinstated as Admin' 'Reinstated as SuperUser' "  %}
+    <h2>Superadmin Dashboard</h2>
+    <ul>
+        <li><a href="{% url 'inventory_list' %}">View Inventory</a></li>
+        <li><a href="{% url 'create_admin' %}">Create Admin</a></li>
+        <li><a href="{% url 'admin_list' %}">Manage Admins</a></li>
+        <li><a href="{% url 'lab_list' %}">Lab List</a></li>
+        <li><a href="{% url 'add_equipment' %}">Add Equipment</a></li>
+        <li><a href="{% url 'home' %}">Home</a></li>
+    </ul>
+    {% else %}
+    <ul>
+        <li><a href="{% url 'lab_list' %}">Lab List</a></li>
+        <li><a href="{% url 'add_equipment' %}">Add Equipment</a></li>
+    </ul>
+    {% endif %}
+    <script>
+        const labform = document.getElementById("lab-form");
+        if (!labform) {
+            alert("Form with id 'lab-form' not found");
+        }
+        labform.addEventListener("submit", function (event) {
+            alert("Lab added successfully! Redirecting to Lab List...");
+            setTimeout(() => {
+                this.submit(); 
+            }, 5000);
+        });
+        let index = 0;
+        function getmore() {
+            fetch("{% url 'get_equipment_form' %}?index=" + index++).then(response => {
+                if (!response.ok) {
+                    throw new Error("Error while rendering Form from Views" + response.statusText);
+
+                }
+                return response.json();
+            }).then(form_html => {
+                console.log('Form Successful:', form_html);
+                document.getElementById("equipment-container").insertAdjacentHTML('beforeend', form_html.form_html);
+            });
+        };
+
+        const labPatterns = {
+            et: [
+                /^Electrician(\d*)$/,
+                /^Electric(\d*)$/,
+                /^ET(\d*)$/,
+                /^ET_Lab(\d*)$/,
+                /^ET_Lab_(\d*)$/,
+                /^ET lab(\d*)$/,
+                /^ET_lab_(\d*)$/,
+                /^ET_lab$/
+            ],
+            stitch: [
+                /^Stitchingand Tailoring(\d*)$/, /^Stitching&Tailoring(\d*)$/, /^Stitching & Tailoring(\d*)$/, /^Stitching_and_Tailoring(\d*)$/,
+                /^Stitching_&_Tailoring(\d*)$/, /^S&T(\d*)$/, /^S_&_T(\d*)$/, /^Stitching(\d*)$/, /^Tailoring(\d*)$/
+            ],
+            beauty: [/^Beauty and Wellness(\d*)$/, /^ Beauty&Wellness(\d*)$/, /^Beauty & Wellness(\d*)$/, /^Beauty_and_Wellness(\d*)$/, /^B&W(\d*)$/,
+                /^Beauty_&_Wellness(\d*)$/, /^B & W(\d*)$/, /^Beauty(\d*)$/],
+        };
+        const sectionChoices =
+        {
+            et: [
+                { value: 'Electrical Technician', text: 'Electrical Technician' },
+                { value: 'CCTV', text: 'CCTV' },
+                { value: 'Solar', text: 'Solar' },
+                { value: 'Motor Starter', text: 'Motor Starter' },
+                { value: 'Cabling Technician', text: 'Cabling Technician' },
+                { value: 'EV Charging', text: 'EV Charging' },
+                { value: 'Energy Meter', text: 'Energy Meter' },
+                {value: "Create New Section", text:"Create New Section"}
+            ],
+            beauty: [{ value: 'Skin', text: 'Skin' }, { value: 'Hair', text: 'Hair' }, { value: 'Nails', text: 'Nails' }, { value: 'Makeup', text: 'Makeup' },
+            { value: "Create New Section", text: "Create New Section" }],
+            stitch: [{ value: 'Basic', text: 'Basic' }, { value: 'Advanced', text: 'Advanced' }, { value: 'Knitting', text: 'Knitting' },
+                { value: "Create New Section", text: "Create New Section" }]
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const nameInput = document.getElementById('id_Name');
+            const sectionSelect = document.getElementById('id_Section');
+            const originalOptions = Array.from(sectionSelect.options).map(opt => ({ value: opt.value, text: opt.text }));
+
+            function setOptions(opts) {
+                sectionSelect.innerHTML = '';
+                opts.forEach(({ value, text }) => {
+                    sectionSelect.appendChild(new Option(text, value));
+                });
+            }
+
+            nameInput.addEventListener('input', () => {
+                const name = nameInput.value.trim();
+
+                let matchedCategory = null;
+                if (labPatterns.et.some(rx => rx.test(name))) {
+                    matchedCategory = 'et';
+                } else if (labPatterns.stitch.some(rx => rx.test(name))) {
+                    matchedCategory = 'stitch';
+                } else if (labPatterns.beauty.some(rx => rx.test(name))) {
+                    matchedCategory = 'beauty';
+                }
+
+                if (matchedCategory) {
+                    setOptions(sectionChoices[matchedCategory]);
+                }
+                else {
+                    setOptions(originalOptions); // fallback if nothing matches
+                }
+            });
+            let ind = 0;
+            console.log("running till 139");
+            document.querySelectorAll("select").forEach((select, ind) => {
+                console.log("select running");
+                select.addEventListener("change", (event) => {
+                    if (sectionSelect.value == "Create New Section" || sectionSelect.value == "New – New Section" ) {
+                        console.log(sectionSelect.value);
+                        let catlab = document.createElement("label");
+                        catlab.id="catlab" + ind;
+                        catlab.name="catlab" + ind;
+                        catlab.textContent = "Lab Category";
+                        let b = document.getElementById("lab-form");
+                        b.appendChild(catlab);
+                        let catInp = document.createElement("input");
+                        catInp.setAttribute("id", "catinp" + ind);
+                        catInp.setAttribute("name", "catinp" + ind);
+                        catInp.value = nameInput.value.trim();
+                        catlab.insertAdjacentElement('afterend', catInp);
+                        let valLab = document.createElement("label");
+                        valLab.textContent = "Section";
+                        catInp.insertAdjacentElement('afterend', valLab);
+                        let valInp = document.createElement("input");
+                        valInp.setAttribute("id", "newsection" + ind);
+                        valInp.setAttribute("name", "catinp" + ind);
+                        valInp.value = "";
+                        valLab.insertAdjacentElement('afterend', valInp);
+                        ind++;
+                        console.log("if running");
+                    }
+                });
+            });
+        });
+
+
+    </script>
+
+</body>
+
+
+
+</html>

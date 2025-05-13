@@ -1,0 +1,75 @@
+views.py:
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import Equipment, Request
+
+@login_required
+def issue_equipment(request):
+    # Always fetch the list of equipment for the form
+    equipment_list = Equipment.objects.all()
+
+    if request.method == "POST":
+        # Process the form submission
+        equipment = get_object_or_404(Equipment, id=request.POST["equipment_id"])
+        req = Request.objects.create(
+            Admin=request.user,
+            Issued_By=request.POST["issued_by"],
+            Username=request.POST["username"],
+            Post=request.POST["post"],
+            UserEmail=request.POST["user_email"],
+            Equipment=equipment,
+            Tool_Name=equipment.Tool_Name,
+            Type=equipment.Type,
+            Section=equipment.Section,
+            Condition_Issued=request.POST["condition_issued"],
+        )
+        # Use Django messages to show a one‐time success message
+        messages.success(request, "Equipment issued successfully!")
+        # After POST, redirect to GET (Post/Redirect/Get pattern)
+        return redirect('issue_equipment')
+
+    # If GET (or any other method), render the form
+    return render(request, "request.html", {
+        "equipment_list": equipment_list
+    })
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------request.html:
+<!doctype html>
+<html>
+<head>
+  <!-- … -->
+</head>
+<body>
+  {% if messages %}
+    <ul class="messages">
+      {% for msg in messages %}
+        <li class="{{ msg.tags }}">{{ msg }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <form method="POST" id="issue-form">
+    {% csrf_token %}
+    <h3>Issue Equipment</h3>
+    <label>Issued By:</label><input type="text" name="issued_by" required><br>
+    <label>Username:</label><input type="text" name="username" required><br>
+    <label>Post:</label>
+      <select name="post" required>
+        <option value="student">Student</option>
+        <option value="trainer">Trainer</option>
+      </select><br>
+    <label>User Email:</label><input type="email" name="user_email" required><br>
+    <label>Equipment:</label>
+      <select name="equipment_id" required>
+        {% for equipment in equipment_list %}
+          <option value="{{ equipment.id }}">
+            {{ equipment.Tool_Name }} ({{ equipment.Quantity }})
+          </option>
+        {% endfor %}
+      </select><br>
+    <label>Condition at Issuance:</label>
+      <textarea name="condition_issued" required></textarea><br>
+    <button type="submit">Issue</button>
+  </form>
+</body>
+</html>

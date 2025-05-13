@@ -1,0 +1,184 @@
+## 1. Introduce a `Section` Model
+
+```python
+from django.db import models
+
+class Section(models.Model):
+    CATEGORY_CHOICES = [
+        ('et', 'ET'),
+        ('beauty', 'Beauty'),
+        ('stitch', 'Stitch'),
+    ]
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
+    name     = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return f"{self.get_category_display()} – {self.name}"
+```
+
+**Reasoning:**
+
+* Moves every section into the database as its own record.
+* `category` groups them (ET, Beauty, Stitch).
+* `name` holds the human‑readable string (e.g. "CCTV").
+
+---
+
+## 2. Update `Lab` and `Equipment` to Use the FK
+
+```diff
+-class Lab(models.Model):
+-    SECTION_CHOICES = [ ... ]
+-    Section = models.CharField(max_length=100, choices=SECTION_CHOICES)
++class Lab(models.Model):
++    Name = models.CharField(max_length=100)
++    LabId = models.IntegerField(default=1)
++    # ... other fields ...
++    Section = models.ForeignKey(
++        'Section',
++        on_delete=models.PROTECT,
++        related_name='labs'
++    )
+```
+
+```diff
+-class Equipment(models.Model):
+-    Section = models.CharField(max_length=100, choices=Lab.SECTION_CHOICES)
++class Equipment(models.Model):
++    Section = models.ForeignKey(
++        'Section',
++        on_delete=models.PROTECT,
++        related_name='equipment'
++    )
+```
+
+**Reasoning:**
+
+* By pointing at `Section`, Django will automatically load all sections from the DB instead of a static tuple.
+* `on_delete=models.PROTECT` prevents removing a section in use.
+
+---
+
+## 3. Backfill Existing Sections (Data Migration)
+
+Create a one‑time data migration under `yourapp/migrations/000X_add_initial_sections.py`:
+
+```python
+from django.db import migrations
+
+OLD_CHOICES = {
+    'et': [
+        'Electrical Technician', 'CCTV', 'Solar', 'Motor Starter',
+        'Cabling Technician', 'EV Charging', 'Energy Meter',
+    ],
+    'beauty': ['Skin', 'Hair', 'Nails', 'Makeup'],
+    'stitch': ['Basic', 'Advanced', 'Knitting'],
+}
+
+
+def forwards(apps, schema_editor):
+    Section = apps.get_model('yourapp', 'Section')
+    for cat, names in OLD_CHOICES.items():
+        for name in names:
+            Section.objects.get_or_create(category=cat, name=name)
+
+
+class Migration(migrations.Migration):
+    dependencies = [
+        ('yourapp', '000X_previous_migration'),
+    ]
+    operations = [
+        migrations.RunPython(forwards),
+    ]
+```
+
+**Reasoning:**
+
+* Ensures every old choice exists as a `Section` record.
+
+---
+
+## 4. Update Your Forms to Query the DB
+
+```python
+from django import forms
+from .models import Lab, Section
+
+class AddLab(forms.ModelForm):
+    class Meta:
+        model = Lab
+        fields = ['Name', 'Section', ...]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Show all sections; you can filter by category if you know the current lab name
+        self.fields['Section'].queryset = Section.objects.all().order_by('category', 'name')
+```
+
+**Reasoning:**
+
+* Now the `<select>` for `Section` is populated from the database.
+
+---
+
+## 5. AJAX Endpoint to Create a New Section
+
+```python
+# views.py
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+from .models import Section
+
+@require_POST
+def ajax_create_section(request):
+    cat  = request.POST['category']
+    name = request.POST['name'].strip()
+    section, created = Section.objects.get_or_create(category=cat, name=name)
+    return JsonResponse({
+        'id': section.pk,
+        'value': section.pk,
+        'text': section.name,
+    })
+```
+
+**Reasoning:**
+
+* Allows JavaScript to send a new section name + category, and get back its DB PK.
+
+---
+
+## 6. JavaScript: Hook "Create New Section"
+
+```js
+// assuming `category` is known (e.g. from matching labPatterns)
+sectionSelect.addEventListener('change', async (e) => {
+  if (e.target.value === 'CREATE_NEW') {
+    const name = prompt('Enter new section name:');
+    if (!name) return;
+
+    const resp = await fetch('/labs/ajax-create-section/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'),
+      },
+      body: JSON.stringify({ category, name })
+    });
+    const data = await resp.json();
+
+    // Add the new option and select it
+    const opt = new Option(data.text, data.value, true, true);
+    sectionSelect.add(opt);
+  }
+});
+```
+
+**Reasoning:**
+
+* When users choose the special “Create New” option, prompt for a name,
+* POST to our new view,
+* On success, inject the returned `<option>` (with real PK) and make it the current selection.
+
+---
+
+With this refactor, all of your original choices remain in the DB, you can add new ones at runtime, and both Django *and* your JavaScript will always stay in sync.

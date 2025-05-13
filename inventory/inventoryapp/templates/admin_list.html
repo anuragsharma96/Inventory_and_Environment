@@ -1,0 +1,106 @@
+<!Doctype Html>
+<html lang="en">
+<head>
+<meta charset="Utf-8">
+<meta name="viewport" content="width:device-width, initil-scale:1.0">
+<style>
+th,tr,td,table
+{ border:solid 1px;}
+</style>
+</head>
+<body>
+{% if request.user.is_superuser or request.user.role in "SuperUser superuser"%}
+<table><caption>Manage Admins</caption>
+<thead>
+<tr>
+<th>First Name</th>
+<th> Last Name </th>
+<th>User Name</th>
+<th> Role</th>
+<th>Phone Number</th>
+<th>Date Assigned</th>
+<th>Access</th>
+</thead>
+<tbody>
+{% for items in admins %}
+<tr><td>{{ items.first_name }}</td>
+<td>{{ items.last_name }} </td>
+<td>{{ items.username }}</td>
+<td>{{ items.role }}</td>
+<td>{{ items.phonenumber }}</td>
+<td>{{ items.date_joined }}</td>
+<td>{% if items.access_revoked %}
+                    Revoked
+                {% else %}
+                    <button onclick="openRevokeDialog('{{ items.id }}')">Revoke Access</button>
+                {% endif %}</td>
+<td>{% if items.access_revoked %}
+<button onclick="openReinstate('{{ items.id }}')">Reinstate</button>
+{% endif %}</td>
+<td>{% if items.role in "Admin admin 'Reinstated as admin' " %}
+<form id="promoteForm_{{ items.id }}" method="POST" action="{% url 'promote' %}">
+    {% csrf_token %}
+    <input type="hidden" name="admid" value="{{ items.id }}">
+    <button type="submit" onclick="promote('{{ items.id }}')">Promote</button>
+</form>{% endif %}</td></tr>
+{% endfor %}
+</tbody></table>
+{% else %}
+<meta http-equiv="refresh" content="width:device-width, url=url{% url 'lab_list' %}">
+{% endif %}
+<div id="revokeModal" style="display: none;">
+    <form id="revokeForm" method="post" action="{% url 'revoke_admin_access' %}">
+        {% csrf_token %}
+        <input type="hidden" id="admin_id" name="admin_id">
+        <label for="reason">Reason for Revoking:</label>
+        <textarea name="reason" id="reason" required></textarea>
+        <button type="submit">Submit</button>
+        <button type="button" onclick="closeRevokeDialog()">Cancel</button>
+    </form>
+</div>
+<div id="ReinstateModal" style="display:none;">
+<form id="ReinstateForm" method="post" action="{% url 'reinstate_admin' %}">
+{% csrf_token %}
+       <input type="hidden" id="adm_id" name="adm_id">
+        <label for="email">Email:</label>
+        <textarea name="email" id="email" required></textarea>
+     <label for="phone">Phone Number:</label>
+        <textarea name="phone" id="phone" required></textarea>
+     <label for="role">Role:</label>
+        <select name="role" id="role" required>
+<option value="SuperUser">SuperUser</option>
+<option value="admin">Admin</option></select>
+     <label for="staff">Is Staff</label>
+               <select name="is_staff" id="is_staff" required>
+<option value="true">True</option>
+<option value="false">False</option></select>
+        <button type="submit">Submit</button>
+        <button type="button" onclick="closeReinstate()">Cancel</button>
+    </form>
+</div>
+<script>
+    function openRevokeDialog(adminId) {
+        document.getElementById("admin_id").value = adminId;
+        document.getElementById("revokeModal").style.display = "block";
+    }
+
+    function closeRevokeDialog() {
+        document.getElementById("revokeModal").style.display = "none";
+    }
+function openReinstate(adminId){
+document.getElementById("adm_id").value=adminId;
+document.getElementById("ReinstateModal").style.display="block";
+}
+function closeReinstate()
+{
+document.getElementById("ReinstateModal").style.display="none";}
+function promote(adminId){
+document.getElementById("promoteForm_" + adminId).submit();
+alert("User Promoted to SuperUser");
+}
+</script>
+<nav><a href="{% url 'inventory_list' %}">Back to Inventory</a>
+<a href="{% url 'lab_list' %}">Back to Lab List</a>
+<a href="{% url 'home' %}">Back to Home</a></nav>
+</body>
+</html>

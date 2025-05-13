@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Add Equipment</title>
+    <script>
+        // Ensure input field updates when dropdown changes
+        function updateLabInput() {
+            document.getElementById("lab_name_input").value = document.getElementById("lab_dropdown").value;
+        }
+
+        // Check if Lab exists before submission
+        function validateLab(event) {
+            let labName = document.getElementById("lab_name_input").value.trim();
+            let availableLabs = Array.from(document.getElementById("lab_list").options).map(opt => opt.value);
+console.log("Available Labs:", availableLabs); // Debugging
+
+            if (!availableLabs.includes(labName)) {
+                event.preventDefault(); // Prevent form submission
+                alert("Lab does not exist! Redirecting to add lab page...");
+                setTimeout(() => { window.location.href = "{% url 'add_lab' %}"; }, 5000);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h2>Add Equipment</h2>
+    <form method="post" onsubmit="validateLab(event)">
+        {% csrf_token %}
+            {% for field in form %}
+        {% if field.name != "lab_name" %}
+            <p>{{ field.label_tag }} {{ field }}</p>
+        {% endif %}
+    {% endfor %}
+        <label for="lab_name_input">Lab Name:</label>
+<input type="text" id="lab_name_input" name="lab_name" list="lab_list">
+<datalist id="lab_list">
+    <select>
+        {% for lab in labs %}
+        <option value="{{ lab.Name }}">
+            {% endfor %}
+    </select>
+</datalist>
+        <br>
+
+        <div id="reason_box" style="display: none;">
+            <label>Reason for Duplicate:</label>
+            <input type="text" name="reason_for_duplicate">
+        </div>
+
+        <button type="submit">Add Equipment</button>
+    </form>
+
+    <a href="{% url 'inventory_list' %}">Back to Inventory</a>
+<li> <a href="{% url 'issue_equipment' %}">Issue Equipment</a></li>
+<li> <a href="{% url 'return_equipment' %}">Return Equipment</a></li>
+    {% if request.user.is_superuser or request.user.role in "SuperUser superuser"  %}
+    <h2>Superadmin Dashboard</h2>
+    <ul>
+        <li><a href="{% url 'inventory_list' %}">View Inventory</a></li>
+        <li><a href="{% url 'create_admin' %}">Create Admin</a></li>
+        <li><a href="{% url 'admin_list' %}">Manage Admins</a></li>
+        <li><a href="{% url 'lab_list' %}">Lab List</a></li>
+        <li><a href="{% url 'add_lab' %}">Add Lab</a></li>
+
+    </ul>
+    {% else %}
+    <ul>
+        <li><a href="{% url 'inventory_list' %}">View Inventory</a></li>
+        <li><a href="{% url 'lab_list' %}">Lab List</a></li>
+    </ul>
+    {% endif %}
+</body>
+</html>

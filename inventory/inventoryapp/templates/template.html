@@ -1,0 +1,77 @@
+<!Doctype Html>
+<html lang="en">
+<head>
+<meta charset="Utf-8">
+<meta name="viewport" content="width:device-width, initil-scale:1.0">
+</head>
+<body>
+
+ {% if equipments %}
+    <table border="1">
+        <caption>Inventory</caption>
+        <thead>
+            <tr>
+                <th>Equipment</th>
+                <th>Type</th>
+		<th>Section</th>
+		<th>Lab</th>
+                <th>Order</th>
+<th>
+Cost
+</th>
+<th>
+Total Cost
+</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for items in equipments %}
+            <tr>
+                <td>{{ items.Tool_Name }}</td>
+                <td>
+{{ items.Type }}
+</td>
+<td>
+    {{ items.Section }}
+</td>
+<td>
+{{ items.Lab}}
+</td>
+                <td>
+                    <form method="post" action="{% url 'place_order' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="equipment_id" value="{{ items.id }}">
+                        <button type="submit">Place Order</button>
+                    </form>
+                </td>
+<td>
+{{ items.Tool_Cost }}
+</td>
+<td>
+{{ items.Total_Cost }}
+</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+ {% else %}
+        <p>No equipment found.</p>
+    {% endif %}
+{% if request.user.is_superuser or request.user.role in "SuperUser superuser Reinstated"  %}
+    <h2>Superadmin Dashboard</h2>
+    <ul>
+	<li> <a href="{% url 'create_admin' %}"> Create Admin</a> </li>
+        <li><a href="{% url 'admin_list' %}">Manage Admins</a></li>
+	<li><a href="{% url 'lab_list' %}">Lab List</a></li>
+<li><a href="{% url 'add_equipment' %}"> Add Equipment</a> </li>
+	<li><a href ="{% url 'add_lab' %}">Add Lab</a></li>
+    </ul>
+{% else %}
+<ul>
+
+	<li><a href="{% url 'lab_list' %}">Lab List</a></li>
+	<li><a href="{% url 'add_equipment' %}">Add Equipment</a></li>
+</ul>
+{% endif %}
+</body>
+</html>

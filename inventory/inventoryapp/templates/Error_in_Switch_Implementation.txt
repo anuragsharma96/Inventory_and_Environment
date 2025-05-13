@@ -1,0 +1,50 @@
+        const labPatterns = {
+            et: [
+                /^Electrician(\d+)$/,
+                /^Electric(\d+)$/,
+                /^ET(\d+)$/,
+                /^ET_Lab(\d+)$/,
+                /^ET_Lab_(\d+)$/,
+                /^ET lab(\d+)$/,
+                /^ET_lab_(\d+)$/,
+                /^ET_lab$/
+            ],
+            stitch: [
+                /^Stitching and Tailoring(\d+)$/, /^Stitching&Tailoring(\d+)$/, /^Stitching & Tailoring(\d+)$/, /^Stitching_and_Tailoring(\d+)$/,
+                /^Stitching_&_Tailoring(\d+)$/, /^S&T(\d+)$/, /^S_&_T(\d+)$/
+            ],
+            beauty: [/^Beauty and Wellness(\d+)$/, /^ Beauty&Wellness(\d +)$/, /^Beauty & Wellness(\d+)$/, /^Beauty_and_Wellness(\d+)$/, /^B&W(\d+)$/,
+                /^Beauty_&_Wellness(\d+)$/, /^B & W(\d+)$/],
+        };
+        const sectionChoices =
+        {
+            et: [
+                { value: 'Electrical Technician', text: 'Electrical Technician' },
+                { value: 'CCTV', text: 'CCTV' },
+                { value: 'Solar', text: 'Solar' },
+                { value: 'Motor Starter', text: 'Motor Starter' },
+                { value: 'Cabling Technician', text: 'Cabling Technician' },
+                { value: 'EV Charging', text: 'EV Charging' },
+                { value: 'Energy Meter', text: 'Energy Meter' }
+            ],
+            beauty: [{ value: 'Skin', text: 'Skin' }, { value: 'Hair', text: 'Hair' }, { value: 'Nails', text: 'Nails' }, { value: 'Makeup', text: 'Makeup' }],
+            stitch: [{ value: 'Basic', text: 'Basic' }, { value: 'Advanced', text: 'Advanced' }, { value:'Knitting', text:'Knitting' }]
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const nameInput = document.getElementById('id_Name');
+            const sectionSelect = document.getElementById("id_Section");
+            const originalOptions = Array.from(sectionSelect.options)
+                .map(opt => ({ value: opt.value, text: opt.text }));
+            console.log("Error begins");
+************************************************************************************************************************************************************************ -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------************************************************************************************************************************************************************************
+            switch (nameInput) {
+                case labPatterns[0]:
+                function setOptions(opts) {
+                sectionSelect.innerHTML = '';
+                    opts.forEach(({ value, text }) => {
+                        sectionSelect.appendChild(new Option(text, value));
+                    });
+  
+            }
+            }

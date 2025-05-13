@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Return Equipment</title>
+    </head>
+<body>
+<form method="POST">
+  {% csrf_token %}
+
+  <label for="equipment_id">Select Equipment:</label>
+  <select name="equipment_id" required>
+    <option value="">-- Choose Equipment --</option>
+    {% for equipment in equipment_list %}
+      <option value="{{ equipment.id }}">{{ equipment.Tool_Name }} ({{ equipment.Section }}) ({{ equipment.Type }})</option>
+    {% endfor %}
+  </select>
+  <br><br>
+
+  <label for="username">User Name:</label>
+  <input type="text" name="username" required><br><br>
+
+  <label for="post">User Post:</label>
+  <input type="text" name="post" required><br><br>
+
+  <label for="user_email">User Email:</label>
+  <input type="email" name="user_email" required><br><br>
+
+  <label for="issued_by">Returned To:</label>
+  <input type="text" name="returned_to" required disabled value="{{ request.user.username }}"><br><br>
+
+  <label for="quantity">Quantity Returned:</label>
+  <input type="number" name="quantity" min="1" required><br><br>
+
+  <label for="condition_returned">Condition Returned:</label>
+  <input type="text" name="condition_returned" required><br><br>
+
+  <button type="submit">Return Equipment</button>
+</form>
+    <a href="{% url 'inventory_list' %}">Back to Inventory</a>
+
+<li> <a href="{% url 'return_equipment' %}">Return Equipment</a></li>
+    {% if request.user.is_superuser or request.user.role in "SuperUser superuser"  %}
+    <h2>Superadmin Dashboard</h2>
+    <ul>
+        <li><a href="{% url 'inventory_list' %}">View Inventory</a></li>
+        <li><a href="{% url 'create_admin' %}">Create Admin</a></li>
+        <li><a href="{% url 'admin_list' %}">Manage Admins</a></li>
+        <li><a href="{% url 'lab_list' %}">Lab List</a></li>
+        <li><a href="{% url 'add_lab' %}">Add Lab</a></li>
+
+    </ul>
+    {% else %}
+    <ul>
+        <li><a href="{% url 'inventory_list' %}">View Inventory</a></li>
+        <li><a href="{% url 'lab_list' %}">Lab List</a></li>
+    </ul>
+    {% endif %}
+</body>
+</html>

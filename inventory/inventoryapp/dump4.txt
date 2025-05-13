@@ -1,0 +1,91 @@
+views.py:
+from django.template.loader import render_to_string
+from django.views.decorators.http import require_GET
+from django.http import JsonResponse
+from .forms import EquipmentForm
+
+@require_GET
+def get_equipment_form(request):
+    # Just return raw HTML directly
+    html = """
+        <div class="equipment-block">
+            <input type="text" name="tool_name[]" placeholder="Tool Name" required><br>
+            <input type="text" name="type[]" placeholder="Type" required><br>
+            <input type="text" name="section[]" placeholder="Section" required><br>
+            <input type="number" name="quantity[]" placeholder="Quantity" required><br>
+            <input type="number" name="tool_cost[]" placeholder="Tool Cost" required><br>
+            <hr>
+        </div>
+    """
+    return JsonResponse({'form_html': html})
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+equiment block
+<div class="equipment-block">
+    <input type="text" name="tool_name[]" placeholder="Tool Name" required>
+    <input type="text" name="type[]" placeholder="Type" required>
+    <input type="text" name="section[]" placeholder="Section" required>
+    <input type="number" name="quantity[]" placeholder="Quantity" required>
+    <input type="number" name="tool_cost[]" placeholder="Tool Cost" required>
+    <hr>
+</div>
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+add lab form:
+form<form method="POST" id="lab-form">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <div id="equipment-container"></div>
+
+    <button type="button" id="add-equipment">Add More Equipment</button>
+    <button type="submit">Save Lab</button>
+</form>
+
+<script>
+document.getElementById("add-equipment").addEventListener("click", function () {
+    fetch("{% url 'get_equipment_form' %}")
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById("equipment-container");
+            const div = document.createElement("div");
+            div.innerHTML = data.form_html;
+            container.appendChild(div);
+        })
+        .catch(error => {
+            console.error("Error fetching form:", error);
+        });
+});
+</script>
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+views.addlab:
+@login_required
+def add_lab(request):
+    if request.method == "POST":
+        form = AddLab(request.POST)
+        if form.is_valid():
+            lab = form.save()
+
+            # Retrieve equipment data from the POST
+            tool_names = request.POST.getlist('tool_name[]')
+            types = request.POST.getlist('type[]')
+            sections = request.POST.getlist('section[]')
+            quantities = request.POST.getlist('quantity[]')
+            tool_costs = request.POST.getlist('tool_cost[]')
+
+            # Loop and create Equipment for each set
+            for i in range(len(tool_names)):
+                Equipment.objects.create(
+                    Tool_Name=tool_names[i],
+                    Type=types[i],
+                    Section=sections[i],
+                    Quantity=quantities[i],
+                    Tool_Cost=tool_costs[i],
+                    Lab=lab
+                )
+
+            messages.success(request, "Lab and all equipment added successfully.")
+            return redirect('lab_list')
+    else:
+        form = AddLab()
+
+    return render(request, 'add_lab.html', {'form': form})
