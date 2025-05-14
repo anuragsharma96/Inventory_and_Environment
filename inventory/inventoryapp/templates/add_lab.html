@@ -11,9 +11,8 @@
         {% csrf_token %}
         {{ form.as_p }}
         <div id="equipment-container"></div>
-
         <button type="button" id="add-equipment" onclick="getmore()">Add More Equipment</button><br>
-        <button type="submit">Save Lab</button>
+        <button type="submit" id="submit">Save Lab</button>
 
     </form>
 
@@ -60,6 +59,7 @@
             });
         };
 
+        console.log("running till 139");
         const labPatterns = {
             et: [
                 /^Electrician(\d*)$/,
@@ -88,14 +88,13 @@
                 { value: 'Cabling Technician', text: 'Cabling Technician' },
                 { value: 'EV Charging', text: 'EV Charging' },
                 { value: 'Energy Meter', text: 'Energy Meter' },
-                {value: "Create New Section", text:"Create New Section"}
+                { value: "Create New Section", text: "Create New Section" }
             ],
             beauty: [{ value: 'Skin', text: 'Skin' }, { value: 'Hair', text: 'Hair' }, { value: 'Nails', text: 'Nails' }, { value: 'Makeup', text: 'Makeup' },
             { value: "Create New Section", text: "Create New Section" }],
             stitch: [{ value: 'Basic', text: 'Basic' }, { value: 'Advanced', text: 'Advanced' }, { value: 'Knitting', text: 'Knitting' },
-                { value: "Create New Section", text: "Create New Section" }]
+            { value: "Create New Section", text: "Create New Section" }]
         };
-
         document.addEventListener('DOMContentLoaded', () => {
             const nameInput = document.getElementById('id_Name');
             const sectionSelect = document.getElementById('id_Section');
@@ -128,18 +127,17 @@
                 }
             });
             let ind = 0;
-            console.log("running till 139");
             document.querySelectorAll("select").forEach((select, ind) => {
                 console.log("select running");
                 select.addEventListener("change", (event) => {
-                    if (sectionSelect.value == "Create New Section" || sectionSelect.value == "New – New Section" ) {
+                    if (sectionSelect.value == "Create New Section" || sectionSelect.value == "New – New Section") {
                         console.log(sectionSelect.value);
                         let catlab = document.createElement("label");
-                        catlab.id="catlab" + ind;
-                        catlab.name="catlab" + ind;
+                        catlab.id = "catlab" + ind;
+                        catlab.name = "catlab" + ind;
                         catlab.textContent = "Lab Category";
-                        let b = document.getElementById("lab-form");
-                        b.appendChild(catlab);
+                        let b = document.getElementById("id_Quantity");
+                        b.insertAdjacentElement('afterend', catlab);
                         let catInp = document.createElement("input");
                         catInp.setAttribute("id", "catinp" + ind);
                         catInp.setAttribute("name", "catinp" + ind);
