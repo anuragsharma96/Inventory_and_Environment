@@ -496,104 +496,7 @@ def get_equipment_form(request):
             <label for='Type_{index}'>Type</label>
             <select name="Type{index}">
     """
-    js= '''
-const sect=document.getElementById("Section{index}"};
-        const labPatterns = {
-            et: [
-                /^Electrician(\d*)$/,
-                /^Electric(\d*)$/,
-                /^ET(\d*)$/,
-                /^ET_Lab(\d*)$/,
-                /^ET_Lab_(\d*)$/,
-                /^ET lab(\d*)$/,
-                /^ET_lab_(\d*)$/,
-                /^ET_lab$/
-            ],
-            stitch: [
-                /^Stitchingand Tailoring(\d*)$/, /^Stitching&Tailoring(\d*)$/, /^Stitching & Tailoring(\d*)$/, /^Stitching_and_Tailoring(\d*)$/,
-                /^Stitching_&_Tailoring(\d*)$/, /^S&T(\d*)$/, /^S_&_T(\d*)$/, /^Stitching(\d*)$/, /^Tailoring(\d*)$/
-            ],
-            beauty: [/^Beauty and Wellness(\d*)$/, /^ Beauty&Wellness(\d*)$/, /^Beauty & Wellness(\d*)$/, /^Beauty_and_Wellness(\d*)$/, /^B&W(\d*)$/,
-                /^Beauty_&_Wellness(\d*)$/, /^B & W(\d*)$/, /^Beauty(\d*)$/],
-        };
-        const sectionChoices =
-        {
-            et: [
-                { value: 'Electrical Technician', text: 'Electrical Technician' },
-                { value: 'CCTV', text: 'CCTV' },
-                { value: 'Solar', text: 'Solar' },
-                { value: 'Motor Starter', text: 'Motor Starter' },
-                { value: 'Cabling Technician', text: 'Cabling Technician' },
-                { value: 'EV Charging', text: 'EV Charging' },
-                { value: 'Energy Meter', text: 'Energy Meter' },
-                { value: "Create New Section", text: "Create New Section" }
-            ],
-            beauty: [{ value: 'Skin', text: 'Skin' }, { value: 'Hair', text: 'Hair' }, { value: 'Nails', text: 'Nails' }, { value: 'Makeup', text: 'Makeup' },
-            { value: "Create New Section", text: "Create New Section" }],
-            stitch: [{ value: 'Basic', text: 'Basic' }, { value: 'Advanced', text: 'Advanced' }, { value: 'Knitting', text: 'Knitting' },
-            { value: "Create New Section", text: "Create New Section" }]
-        };
-        document.addEventListener('DOMContentLoaded', () => {
-            const nameInput = document.getElementById('id_Name');
-            ////const sectionSelect = document.getElementById("Section{index}');
-            const originalOptions = Array.from(sectionSelect.options).map(opt => ({ value: opt.value, text: opt.text }));
-
-            function setOptions(opts) {
-                sect.innerHTML = '';
-                opts.forEach(({ value, text }) => {
-                    sect.appendChild(new Option(text, value));
-                });
-            }
-
-            nameInput.addEventListener('input', () => {
-                const name = nameInput.value.trim();
-
-                let matchedCategory = null;
-                if (labPatterns.et.some(rx => rx.test(name))) {
-                    matchedCategory = 'et';
-                } else if (labPatterns.stitch.some(rx => rx.test(name))) {
-                    matchedCategory = 'stitch';
-                } else if (labPatterns.beauty.some(rx => rx.test(name))) {
-                    matchedCategory = 'beauty';
-                }
-
-                if (matchedCategory) {
-                    setOptions(sectionChoices[matchedCategory]);
-                }
-                else {
-                    setOptions(originalOptions); // fallback if nothing matches
-                }
-            });
-            let ind = 1;
-
-        sect.forEach((select, ind) => {
-            console.log("select running");
-            select.addEventListener("change", (event) => {
-                if (sect.value == "Create New Section" || sect.value == "New – New Section") {
-                    console.log(sect.value);
-                    let catlab = document.createElement("label");
-                    catlab.id = "catlab" + ind;
-                    catlab.name = "catlab" + ind;
-                    catlab.textContent = "Lab Category";
-                    let b = document.getElementById("Quantity_{index}");
-                    b.insertAdjacentElement('beforebegin', catlab);
-                    let catInp = document.createElement("input");
-                    catInp.setAttribute("id", "catinp" + ind);
-                    catInp.setAttribute("name", "catinp" + ind);
-                    catInp.value = nameInput.value.trim();
-                    catlab.insertAdjacentElement('afterend', catInp);
-                    let valLab = document.createElement("label");
-                    valLab.textContent = "Section";
-                    catInp.insertAdjacentElement('afterend', valLab);
-                    let valInp = document.createElement("input");
-                    valInp.setAttribute("id", "newsection" + ind);
-                    valInp.setAttribute("name", "catinp" + ind);
-                    valInp.value = "";
-                    valLab.insertAdjacentElement('afterend', valInp);
-                    ind++;
-                }
-            });
-        });'''
+ 
     for val, label in type_choices:
         html += f"<option value='{val}'>{label}</option>"
     html += "</select>"
@@ -605,9 +508,8 @@ const sect=document.getElementById("Section{index}"};
         html += f"<option value='{val}'>{label}</option>"
     html += "</select>"
     html += f"""
-<script> {js}<//script>
             <label for='Quantity_{index}'>Quantity</label>
-            <input class="Quantity" type="number" name="Quantity_{index}" value="{form['Quantity'].value() or ''}">
+            <input class="Quantity" type="number" name="Quantity_{index}" id="Quantity_{index}" value="{form['Quantity'].value() or ''}">
             <label for='Tool_Cost_{index}'>Tool Cost</label><label for="Tool_Cost_1{index}"></label>
             {tool_cost_html}
             
@@ -615,4 +517,105 @@ const sect=document.getElementById("Section{index}"};
         </div>
     """
     return JsonResponse({'form_html': html})
+##@require_GET
+##def addjs(request):
+##    js= '''<script>
+##const sect=document.getElementById("Section{index}"};
+##        const labPatterns = {
+##            et: [
+##                /^Electrician(\d*)$/,
+##                /^Electric(\d*)$/,
+##                /^ET(\d*)$/,
+##                /^ET_Lab(\d*)$/,
+##                /^ET_Lab_(\d*)$/,
+##                /^ET lab(\d*)$/,
+##                /^ET_lab_(\d*)$/,
+##                /^ET_lab$/
+##            ],
+##            stitch: [
+##                /^Stitchingand Tailoring(\d*)$/, /^Stitching&Tailoring(\d*)$/, /^Stitching & Tailoring(\d*)$/, /^Stitching_and_Tailoring(\d*)$/,
+##                /^Stitching_&_Tailoring(\d*)$/, /^S&T(\d*)$/, /^S_&_T(\d*)$/, /^Stitching(\d*)$/, /^Tailoring(\d*)$/
+##            ],
+##            beauty: [/^Beauty and Wellness(\d*)$/, /^ Beauty&Wellness(\d*)$/, /^Beauty & Wellness(\d*)$/, /^Beauty_and_Wellness(\d*)$/, /^B&W(\d*)$/,
+##                /^Beauty_&_Wellness(\d*)$/, /^B & W(\d*)$/, /^Beauty(\d*)$/],
+##        };
+##        const sectionChoices =
+##        {
+##            et: [
+##                { value: 'Electrical Technician', text: 'Electrical Technician' },
+##                { value: 'CCTV', text: 'CCTV' },
+##                { value: 'Solar', text: 'Solar' },
+##                { value: 'Motor Starter', text: 'Motor Starter' },
+##                { value: 'Cabling Technician', text: 'Cabling Technician' },
+##                { value: 'EV Charging', text: 'EV Charging' },
+##                { value: 'Energy Meter', text: 'Energy Meter' },
+##                { value: "Create New Section", text: "Create New Section" }
+##            ],
+##            beauty: [{ value: 'Skin', text: 'Skin' }, { value: 'Hair', text: 'Hair' }, { value: 'Nails', text: 'Nails' }, { value: 'Makeup', text: 'Makeup' },
+##            { value: "Create New Section", text: "Create New Section" }],
+##            stitch: [{ value: 'Basic', text: 'Basic' }, { value: 'Advanced', text: 'Advanced' }, { value: 'Knitting', text: 'Knitting' },
+##            { value: "Create New Section", text: "Create New Section" }]
+##        };
+##        document.addEventListener('DOMContentLoaded', () => {
+##            const nameInput = document.getElementById('id_Name');
+##            ////const sectionSelect = document.getElementById("Section{index}');
+##            const originalOptions = Array.from(sectionSelect.options).map(opt => ({ value: opt.value, text: opt.text }));
+##
+##            function setOptions(opts) {
+##                sect.innerHTML = '';
+##                opts.forEach(({ value, text }) => {
+##                    sect.appendChild(new Option(text, value));
+##                });
+##            }
+##
+##            nameInput.addEventListener('input', () => {
+##                const name = nameInput.value.trim();
+##
+##                let matchedCategory = null;
+##                if (labPatterns.et.some(rx => rx.test(name))) {
+##                    matchedCategory = 'et';
+##                } else if (labPatterns.stitch.some(rx => rx.test(name))) {
+##                    matchedCategory = 'stitch';
+##                } else if (labPatterns.beauty.some(rx => rx.test(name))) {
+##                    matchedCategory = 'beauty';
+##                }
+##
+##                if (matchedCategory) {
+##                    setOptions(sectionChoices[matchedCategory]);
+##                }
+##                else {
+##                    setOptions(originalOptions); // fallback if nothing matches
+##                }
+##            });
+##
+##        sect.forEach((select, index) => {
+##            console.log("select running");
+##            select.addEventListener("change", (event) => {
+##                if (sect.value == "Create New Section" || sect.value == "New – New Section") {
+##                    console.log(sect.value);
+##                    let catlab = document.createElement("label");
+##                    catlab.id = "catlab" + index;
+##                    catlab.name = "catlab" + index;
+##                    catlab.textContent = "Lab Category";
+##                    let b = document.getElementById("Quantity_{index}");
+##                    b.insertAdjacentElement('beforebegin', catlab);
+##                    let catInp = document.createElement("input");
+##                    catInp.setAttribute("id", "catinp" + index);
+##                    catInp.setAttribute("name", "catinp" + index);
+##                    catInp.value = nameInput.value.trim();
+##                    catlab.insertAdjacentElement('afterend', catInp);
+##                    let valLab = document.createElement("label");
+##                    valLab.textContent = "Section";
+##                    catInp.insertAdjacentElement('afterend', valLab);
+##                    let valInp = document.createElement("input");
+##                    valInp.setAttribute("id", "newsection" + index);
+##                    valInp.setAttribute("name", "catinp" + index);
+##                    valInp.value = "";
+##                    valLab.insertAdjacentElement('afterend', valInp);
+##                    ind++;
+##                }
+##            });
+##        });
+##        </script>'''
+##    return JsonResponse({'form_html':js})
 

@@ -41,4 +41,5 @@ urlpatterns = [
     path('issue_equipment/', views.issue_equipment, name='issue_equipment'),
     path('return_equipment/', views.return_equipment, name='return_equipment'),
     path('add_more_equipment/',views.get_equipment_form,name='get_equipment_form'),
+    #path('addjs/',views.addjs,name='addjs'),
 ]
