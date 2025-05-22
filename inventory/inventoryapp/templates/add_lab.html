@@ -6,6 +6,7 @@
     <title>Add Lab</title>
 </head>
 <body>
+    {% load static %}
     <h2>Add Lab</h2>
     <form id="lab-form" method="POST">
         {% csrf_token %}
@@ -161,7 +162,7 @@
 
 
     </script>
-    <script src="E:\CII-MCMCRM\inventory\inventoryapp\templates\addlab.js"></script>
+    <script src="{% static 'js/addlab.js' %}"></script>
 </body>
 
 

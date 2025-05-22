@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import os
 from pathlib import Path
 import moneyed
 from moneyed import INR
@@ -33,6 +33,11 @@ ALLOWED_HOSTS = []
 
 LOGIN_URL = '/admin/login/'
 LOGIN_REDIRECT='/admin/'
+STATIC_URL='/static/'
+##STATICFILES_DIRS = [
+##    BASE_DIR / "static",os.path.join(BASE_DIR, "static"),
+##    # or os.path.join(BASE_DIR, "static")
+##]
 # Application definition
 
 INSTALLED_APPS = [
