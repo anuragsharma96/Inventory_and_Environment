@@ -1,4 +1,4 @@
-function ()
+function addlabjs ()
 {
     const labPatterns = {
         et: [
@@ -37,7 +37,7 @@ function ()
     };
     document.addEventListener('DOMContentLoaded', () => {
         const nameInput = document.getElementById('id_Name');
-        const sectionSelect = document.target.id.startsWith('Section');
+        const sectionSelect = document.getElementById('id_Section');
         const originalOptions = Array.from(sectionSelect.options).map(opt => ({ value: opt.value, text: opt.text }));
         console.log(sectionSelect);
 
@@ -91,7 +91,7 @@ function ()
         });
 
         // Watch the lab name input and reapply options
-        const nameInput = document.getElementById("id_Name");
+       // const nameInput = document.getElementById("id_Name");
         if (nameInput) {
             nameInput.addEventListener("input", () => {
                 const nameVal = nameInput.value.trim();
@@ -108,5 +108,6 @@ function ()
                 });
             });
         }
-    })();
+    })
 }
+addlabjs();
