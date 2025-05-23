@@ -32,7 +32,7 @@ function addlabjs ()
         ],
         beauty: [{ value: 'Skin', text: 'Skin' }, { value: 'Hair', text: 'Hair' }, { value: 'Nails', text: 'Nails' }, { value: 'Makeup', text: 'Makeup' },
         { value: "Create New Section", text: "Create New Section" }],
-        stitch: [{ value: 'Basic', text: 'Basic' }, { value: 'Advanced', text: 'Advanced' }, { value: 'Knitting', text: 'Knitting' },
+        stitch: 2[{ value: 'Basic', text: 'Basic' }, { value: 'Advanced', text: 'Advanced' }, { value: 'Knitting', text: 'Knitting' },
         { value: "Create New Section", text: "Create New Section" }]
     };
     document.addEventListener('DOMContentLoaded', () => {
@@ -74,9 +74,18 @@ function addlabjs ()
                 if (existingInput) return; // Prevent duplicates
 
                 const label = document.createElement("label");
-                label.textContent = "New Section:";
-                label.setAttribute("for", "newsection" + index);
-
+                label.textContent = "Category";
+                label.setAttribute("id", "Category" + index);
+                label.setAttribute("for", "inpcat" + index);
+                const inpcat = document.createElement("input");
+                inpcat.id = "catinp" + index;
+                inpcat.name = "inpcat" + index;
+                inpcat.type = "text";
+                inpcat.value = nameInput.value.trim();
+               const labsect= document.createElement("label");
+                labsect.textContent = "Section";
+                labsect.setAttribute("id", "Category" + index);
+                labsect.setAttribute("for", "newsection" + index);
                 const input = document.createElement("input");
                 input.id = "newsection" + index;
                 input.name = "newsection" + index;
@@ -84,7 +93,9 @@ function addlabjs ()
                 input.value = "";
 
                 sectionSelect.insertAdjacentElement("afterend", label);
-                label.insertAdjacentElement("afterend", input);
+                label.insertAdjacentElement("afterend", inpcat);
+                inpcat.insertAdjacentElement("afterend", labsect);
+                labsect.insertAdjacentElement("afterend", input);
             } else if (matchedCategory) {
                 setOptions(sectionSelect, sectionChoices[matchedCategory]);
             }
