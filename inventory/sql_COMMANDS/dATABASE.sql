@@ -13,6 +13,7 @@ Select * from inventoryapp_lab;
 select*from inventoryapp_equipment;
 Select * from inventoryapp_adminlog;
 select * from inventoryapp_access;
+select * from inventoryapp_Section;
 select * from inventoryapp_customuser;
 /*list of Delete Comamands*/
 delete from inventoryapp_adminlog;

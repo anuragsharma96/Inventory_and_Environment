@@ -242,16 +242,27 @@ def add_lab(request):
                     labnum=next(reversed(Lab.LabId))
                     labnum+=1
                 for index in equipment_indices:
-                    # For each equipment block, extract the data using the index
-                    tool_name = request.POST.get(f'Tool_Name_{index}')
-                    type_field = request.POST.get(f'Type_{index}')
-                    section = request.POST.get(f'Section_{index}')
-                    quantity = request.POST.get(f'Quantity_{index}')
-                    tool_cost = request.POST.get(f'Tool_Cost_0_{index}')
-                    tool_cost_currency=request.POST.get(f'Tool_Cost_1_{index}')
-                    Lab.objects.create(Name=request.POST.get('Name'),
-                    Tool_Name= tool_name, Type= type_field, Section=section,
+                    if request.POST.get(f'Section_{index}')=="Create New Section":
+                        tool_name = request.POST.get(f'Tool_Name_{index}')
+                        type_field = request.POST.get(f'Type_{index}')
+                        quantity = request.POST.get(f'Quantity_{index}')
+                        tool_cost = request.POST.get(f'Tool_Cost_0_{index}')
+                        tool_cost_currency=request.POST.get(f'Tool_Cost_1_{index}')
+                        section=request.POST.get(r'^newsection(\d+)$')
+                        SECTION.create(category=request.POST.get(r'^catinp(\d+)$'),name=section)
+                        Lab.objects.create(Name=request.POST.get('Name'),Tool_Name= tool_name, Type= type_field, Section=section,
             Quantity= quantity, Tool_Cost= tool_cost, Tool_Cost_currency=tool_cost_currency)
+                    # For each equipment block, extract the data using the index
+                    else:
+                        tool_name = request.POST.get(f'Tool_Name_{index}')
+                        type_field = request.POST.get(f'Type_{index}')
+                        section = request.POST.get(f'Section_{index}')
+                        quantity = request.POST.get(f'Quantity_{index}')
+                        tool_cost = request.POST.get(f'Tool_Cost_0_{index}')
+                        tool_cost_currency=request.POST.get(f'Tool_Cost_1_{index}')
+                        Lab.objects.create(Name=request.POST.get('Name'),
+                        Tool_Name= tool_name, Type= type_field, Section=section,
+                Quantity= quantity, Tool_Cost= tool_cost, Tool_Cost_currency=tool_cost_currency)
 ##                    equipment_list.append({
 ##                        "Tool_Name": tool_name,
 ##                        "Type": type_field,
